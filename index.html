@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contador de Dias sem Live</title>
+    <style>
+        body { margin: 0; padding: 0; font-family: 'Arial', sans-serif; background-color: white; display: flex; flex-direction: column; min-height: 100vh; }
+        .barra-verde { background-color: #4CAF50; height: 15vh; width: 100%; }
+        .container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
+        h1 { font-size: 3rem; text-transform: uppercase; color: black; margin: 20px 0; }
+        .numero-box { display: inline-block; border: 3px solid black; padding: 5px 20px; color: #D32F2F; font-weight: bold; min-width: 50px; }
+        .subtexto { font-size: 2rem; font-weight: bold; margin-top: 50px; }
+        #loading { font-size: 1rem; color: gray; margin-top: 10px; }
+        
+        /* Efeito visual quando bate o recorde */
+        .recorde-quebrado {
+            color: #4CAF50; /* Fica verde */
+            animation: piscar 2s infinite;
+        }
+        @keyframes piscar {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="barra-verde"></div>
+    
+    <div class="container">
+        <h1>
+            ESTAMOS A <span class="numero-box" id="dias-contador">-</span> DIAS<br>
+            SEM LIVE DO KASAMA
+        </h1>
+
+        <div class="subtexto">
+            NOSSO RECORDE É DE <span class="numero-box" id="recorde-contador">-</span> DIAS
+        </div>
+        
+        <div id="loading">Atualizando dados...</div>
+    </div>
+
+    <div class="barra-verde"></div>
+
+    <script>
+        const urlDados = 'dados.json?v=' + new Date().getTime();
+
+        fetch(urlDados)
+            .then(response => response.json())
+            .then(dados => {
+                const agora = new Date();
+                const ultimo = new Date(dados.dataUltimoIncidente);
+                
+                // 1. Calcula quantos dias estamos "limpos" agora
+                const diferenca = agora - ultimo;
+                const diasAtuais = Math.floor(diferenca / (1000 * 60 * 60 * 24));
+                
+                // Garante que não mostre número negativo
+                const contadorReal = diasAtuais >= 0 ? diasAtuais : 0;
+
+                // 2. Lógica do Recorde Automático
+                let recordeParaMostrar = dados.recorde;
+                const elementoRecorde = document.getElementById('recorde-contador');
+
+                // Se os dias atuais superaram o recorde salvo no arquivo
+                if (contadorReal > dados.recorde) {
+                    recordeParaMostrar = contadorReal;
+                    // Adiciona um efeito visual legal pq é recorde novo
+                    elementoRecorde.classList.add('recorde-quebrado');
+                    elementoRecorde.title = "Recorde sendo quebrado agora!";
+                }
+
+                // 3. Atualiza a tela
+                document.getElementById('dias-contador').innerText = contadorReal;
+                elementoRecorde.innerText = recordeParaMostrar;
+                
+                document.getElementById('loading').style.display = 'none';
+            })
+            .catch(err => {
+                console.error("Erro:", err);
+                document.getElementById('loading').innerText = "Erro ao carregar.";
+            });
+    </script>
+</body>
+</html>
