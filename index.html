@@ -13,7 +13,6 @@
         .subtexto { font-size: 2rem; font-weight: bold; margin-top: 50px; }
         #loading { font-size: 1rem; color: gray; margin-top: 10px; }
         
-        /* Efeito visual quando bate o recorde */
         .recorde-quebrado {
             color: #4CAF50; /* Fica verde */
             animation: piscar 2s infinite;
@@ -52,26 +51,20 @@
                 const agora = new Date();
                 const ultimo = new Date(dados.dataUltimoIncidente);
                 
-                // 1. Calcula quantos dias estamos "limpos" agora
                 const diferenca = agora - ultimo;
                 const diasAtuais = Math.floor(diferenca / (1000 * 60 * 60 * 24));
                 
-                // Garante que não mostre número negativo
                 const contadorReal = diasAtuais >= 0 ? diasAtuais : 0;
 
-                // 2. Lógica do Recorde Automático
                 let recordeParaMostrar = dados.recorde;
                 const elementoRecorde = document.getElementById('recorde-contador');
 
-                // Se os dias atuais superaram o recorde salvo no arquivo
                 if (contadorReal > dados.recorde) {
                     recordeParaMostrar = contadorReal;
-                    // Adiciona um efeito visual legal pq é recorde novo
                     elementoRecorde.classList.add('recorde-quebrado');
                     elementoRecorde.title = "Recorde sendo quebrado agora!";
                 }
 
-                // 3. Atualiza a tela
                 document.getElementById('dias-contador').innerText = contadorReal;
                 elementoRecorde.innerText = recordeParaMostrar;
                 
